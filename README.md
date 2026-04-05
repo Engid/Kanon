@@ -4,6 +4,6 @@ the v0 implementation is in typescript for fast iteration.
 
 Clefff is designed to be a language-as-a-library (like Lua) so it's easy to host. 
 
-This implementation isn't focusing on being nice-to-host yet, since we are still figuring out what the language _is_. 
+The v0 implementation isn't focusing on being nice-to-host yet, since we are still figuring out what the language _is_. 
 
 See the [overview](v0/spec/01-overview.md) for more info.
