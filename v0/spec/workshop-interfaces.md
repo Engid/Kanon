@@ -1,6 +1,14 @@
 # Workshop: Interfaces and Structural Matching
 
+> **Created:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
+> **Changelog:**
+> - 2026-04-05 — Initial draft
+> - 2026-04-06 — Converted to RFC-0003; added metadata headers
+
 **Status:** Design sketch. Not needed for v0.1 — `type`, `enum`, and free functions cover the initial use cases. Interfaces become useful for platform/host interaction and generic library code.
+
+> **Note:** This workshop document has been converted to [RFC-0003](../RFCs/0003-interfaces.md). Future updates should be made to the RFC.
 
 ---
 

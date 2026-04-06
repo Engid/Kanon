@@ -1,5 +1,11 @@
 # 9. Modules and Imports
 
+> **Created:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
+> **Changelog:**
+> - 2026-04-05 — Initial draft
+> - 2026-04-06 — Added metadata headers
+
 ## 9.1 Overview
 
 Clef's module system follows a simple principle: **the filesystem is the module tree.** A file is a module. A directory is a namespace. Imports are quoted paths. There is no separate module declaration — the file's location defines its identity.

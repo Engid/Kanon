@@ -1,5 +1,11 @@
 # 7. Example Programs
 
+> **Created:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
+> **Changelog:**
+> - 2026-04-05 — Initial draft
+> - 2026-04-06 — Added metadata headers
+
 ## 7.1 Hello World — A Simple Melody
 
 ```

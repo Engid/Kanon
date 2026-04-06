@@ -1,5 +1,11 @@
 # 1. Overview
 
+> **Created:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
+> **Changelog:**
+> - 2026-04-05 — Initial draft
+> - 2026-04-06 — Added metadata headers
+
 ## 1.1 What Is Clef?
 
 Clef is a domain-specific language for composing microtonal music. It provides first-class rational numbers, lazy generators, algebraic music types, and C-family syntax in a garbage-collected, interpreted runtime.

@@ -1,6 +1,14 @@
 # Workshop: Error Handling
 
+> **Created:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
+> **Changelog:**
+> - 2026-04-05 — Initial draft
+> - 2026-04-06 — Converted to RFC-0002; added metadata headers
+
 **Status:** Early design. Core decisions made, details to be refined during implementation.
+
+> **Note:** This workshop document has been converted to [RFC-0002](../RFCs/0002-error-handling.md). Future updates should be made to the RFC.
 
 ---
 

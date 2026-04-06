@@ -1,4 +1,6 @@
-# 8. Implementation
+(NOTE: this was copied out of the spec directory since it isn't language specific. spec should just define the language)
+
+# 8. Implementation in Rust
 
 ## 8.1 Parsing Strategy
 

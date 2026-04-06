@@ -1,6 +1,14 @@
 # Workshop: Naming Conventions
 
+> **Created:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
+> **Changelog:**
+> - 2026-04-05 — Initial draft
+> - 2026-04-06 — Converted to RFC-0004; added metadata headers
+
 **Status:** Tentative. PascalCase for types is decided. Function/variable casing to be confirmed through real usage.
+
+> **Note:** This workshop document has been converted to [RFC-0004](../RFCs/0004-naming-conventions.md). Future updates should be made to the RFC.
 
 ---
 
