@@ -1,8 +1,8 @@
 # Kanon
 
-A programming language for writing music — especially microtonal music.
+A programming language for writing pure music.
 
-Intervals are exact ratios, not approximations. Tunings, scales, and structure are things you express directly. You write music as code, and Kanon turns it into events any audio engine can play.
+Intervals are exact ratios, not approximations. Tunings, scales, and structure are things you express directly. You write music as code, and Kanon turns it into events any audio engine could play.
 
 ```
 let chord = mix([
