@@ -8,7 +8,7 @@
 
 ## Summary
 
-Establish naming conventions for Clef code: **PascalCase** for types and enum variants, **snake_case** for functions and variables. These conventions ensure visual distinction between types and values, and readable UFCS chains.
+Establish naming conventions for Kanon code: **PascalCase** for types and enum variants, **snake_case** for functions and variables. These conventions ensure visual distinction between types and values, and readable UFCS chains.
 
 ---
 
@@ -27,7 +27,7 @@ Consistent naming improves readability, makes the distinction between types and 
 | Functions | snake_case | `build_triad`, `scale_tempo`, `take_beats` |
 | Variables / bindings | snake_case | `my_scale`, `base_pitch`, `note_count` |
 | Constants | snake_case or UPPER_SNAKE | TBD |
-| Modules / files | snake_case | `scales.clef`, `tuning_tables.clef` |
+| Modules / files | snake_case | `scales.kan`, `tuning_tables.kan` |
 | Type parameters | Single uppercase letter | `T`, `E`, `U` |
 
 ---
@@ -111,7 +111,7 @@ Short, common functions are single words (no casing issue): `map`, `take`, `note
 | **Kotlin** | PascalCase | camelCase | Convention |
 | **Swift** | PascalCase | camelCase | Convention |
 
-Clef aligns with Rust and Python on snake_case for functions/variables.
+Kanon aligns with Rust and Python on snake_case for functions/variables.
 
 ---
 

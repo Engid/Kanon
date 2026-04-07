@@ -8,7 +8,7 @@
 
 ## Summary
 
-Add two parameterized integer types to Clef:
+Add two parameterized integer types to Kanon:
 
 - `Wrap[N]` — a modular integer in the range `0..N-1`. Arithmetic wraps via `mod N`.
 - `Clamp[N]` — a bounded integer in the range `0..N-1`. Arithmetic saturates at the bounds.
@@ -117,7 +117,7 @@ Zig supports arbitrary integer sizes via `u4`, `i12`, etc. — these are fixed-w
 
 ### The core question: Builtin or library?
 
-Can `Wrap[N]` be defined in Clef's stdlib using existing language features, or does it require compiler support?
+Can `Wrap[N]` be defined in Kanon's stdlib using existing language features, or does it require compiler support?
 
 #### What `Wrap[N]` needs:
 
@@ -126,13 +126,13 @@ Can `Wrap[N]` be defined in Clef's stdlib using existing language features, or d
 3. **Conversion from Int** — `Wrap[12](15)` → `3`.
 4. **Type-safe mixing prevention** — `Wrap[12] + Wrap[19]` is a compile error.
 
-#### What Clef currently has:
+#### What Kanon currently has:
 
 - **Generic type parameters** — `[T]`, `[T, U]` — but only type identifiers, NOT compile-time integer values.
 - **`op_` convention** (proposed) — user-defined operator overloading via named functions.
 - **`unit` keyword** (proposed) — branded numeric types with auto-derived arithmetic, but the arithmetic rules are dimensional (same-unit add, scale by dimensionless), not modular.
 
-#### Gap: Clef has no const generics
+#### Gap: Kanon has no const generics
 
 The current generic system only supports type parameters:
 
@@ -335,7 +335,7 @@ This is aspirational for v0 — the compiler can emit the bounds-check-elision o
 
 ### Future: Migrate to const generics (Option B)
 
-When Clef adds const generic parameters, `Wrap` and `Clamp` move from builtins to stdlib:
+When Kanon adds const generic parameters, `Wrap` and `Clamp` move from builtins to stdlib:
 
 ```
 // In stdlib — hypothetical future

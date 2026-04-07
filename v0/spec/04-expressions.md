@@ -277,4 +277,4 @@ notes
     |> take(16)
 ```
 
-UFCS dot-chaining is preferred in idiomatic Clef, but the pipe operator exists for cases where it reads better (e.g., piping into a function that doesn't take a collection as its first argument).
+UFCS dot-chaining is preferred in idiomatic Kanon, but the pipe operator exists for cases where it reads better (e.g., piping into a function that doesn't take a collection as its first argument).

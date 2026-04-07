@@ -8,7 +8,7 @@
 
 ## Summary
 
-Define how Clef handles numeric literal syntax — rationals, EDO steps, unit suffixes (`hz`, `c`), and which mechanisms are user-definable. This RFC proposes:
+Define how Kanon handles numeric literal syntax — rationals, EDO steps, unit suffixes (`hz`, `c`), and which mechanisms are user-definable. This RFC proposes:
 
 1. **`Int / Int → Ratio`** baked into the language (math-correct default)
 2. **Drop `\` as an operator** — EDO uses `edo(7, 12)` or `7.edo(12)` via UFCS
@@ -22,7 +22,7 @@ Define how Clef handles numeric literal syntax — rationals, EDO steps, unit su
 
 ### The Core Question
 
-How much of Clef's numeric literal syntax should be baked into the language grammar vs. pushed into the type system or library?
+How much of Kanon's numeric literal syntax should be baked into the language grammar vs. pushed into the type system or library?
 
 The original spec (§2.4, §6.3) treats `3/2` (rational) and `7\12` (EDO) as **grammar-level special cases** in the parser, and `440.0hz` / `701.955c` as **UFCS calls** to conversion functions. This RFC explores alternatives and proposes a unified approach.
 
@@ -164,7 +164,7 @@ The user writes one line. The compiler does the rest. If you want custom behavio
 440.0<hz>           // float<hz>
 ```
 
-Compile-time dimension tracking with algebraic simplification. Doesn't directly apply to Clef — Clef needs representation changes (Ratio is a BigInt pair, not a tagged float).
+Compile-time dimension tracking with algebraic simplification. Doesn't directly apply to Kanon — Kanon needs representation changes (Ratio is a BigInt pair, not a tagged float).
 
 ### Ruby Rational Literals
 
@@ -254,7 +254,7 @@ Defined as `fun r(x: Int): Ratio = Ratio(x, 1)`. Nice for `[3r, 5r, 7r]` but not
 
 4. **`unit` vs `distinct`:** Should there also be a lower-level `distinct` keyword for non-numeric branding (e.g., `type SQL = distinct String`)? `unit` would be sugar over `distinct` + auto-generated operators.
 
-5. **Clef as general-purpose:** The design leans toward fewer baked-in music concepts. Hz, Cents, Edo should be stdlib types, not language primitives. Ratio stays as a language-level numeric type (it's math, not music).
+5. **Kanon as general-purpose:** The design leans toward fewer baked-in music concepts. Hz, Cents, Edo should be stdlib types, not language primitives. Ratio stays as a language-level numeric type (it's math, not music).
 
 ---
 

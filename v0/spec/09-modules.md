@@ -8,22 +8,22 @@
 
 ## 9.1 Overview
 
-Clef's module system follows a simple principle: **the filesystem is the module tree.** A file is a module. A directory is a namespace. Imports are quoted paths. There is no separate module declaration — the file's location defines its identity.
+Kanon's module system follows a simple principle: **the filesystem is the module tree.** A file is a module. A directory is a namespace. Imports are quoted paths. There is no separate module declaration — the file's location defines its identity.
 
 ## 9.2 File = Module
 
-Every `.clef` file is a module. The module's name is derived from its filename (without the extension).
+Every `.kan` file is a module. The module's name is derived from its filename (without the extension).
 
 ```
 my-project/
-├── main.clef                 // entry point
-├── scales.clef               // module "scales"
-├── tuning.clef               // module "tuning"
-├── utils.clef                // module "utils"
+├── main.kan                  // entry point
+├── scales.kan                // module "scales"
+├── tuning.kan                // module "tuning"
+├── utils.kan                 // module "utils"
 └── patterns/
-    ├── arpeggios.clef        // module "patterns/arpeggios"
-    ├── rhythms.clef          // module "patterns/rhythms"
-    └── transforms.clef       // module "patterns/transforms"
+    ├── arpeggios.kan         // module "patterns/arpeggios"
+    ├── rhythms.kan           // module "patterns/rhythms"
+    └── transforms.kan        // module "patterns/transforms"
 ```
 
 There is no `module` or `package` declaration inside the file. The file's path relative to the project root IS its module identity.
@@ -105,7 +105,7 @@ import "patterns/transforms" { invert, retrograde }
 Use the `private` keyword to hide declarations:
 
 ```
-// scales.clef
+// scales.kan
 
 // public — importable by other modules
 fun major_31edo(): list[Interval] {
@@ -133,7 +133,7 @@ private type InternalCache {
 
 ### Rationale
 
-Most Clef users are composers sharing code with each other, not enterprise teams building layered architectures. Making everything public by default reduces friction — you define a function, it's immediately usable by anyone who imports your file. The `private` escape hatch exists for when you genuinely need to hide implementation details.
+Most Kanon users are composers sharing code with each other, not enterprise teams building layered architectures. Making everything public by default reduces friction — you define a function, it's immediately usable by anyone who imports your file. The `private` escape hatch exists for when you genuinely need to hide implementation details.
 
 ## 9.5 UFCS and Import Scope
 
@@ -142,14 +142,14 @@ Most Clef users are composers sharing code with each other, not enterprise teams
 This prevents the "phantom method" problem where a transitive dependency adds a function that suddenly appears as a method on your types.
 
 ```
-// transforms.clef
+// transforms.kan
 fun quantize_to(seq: Seq[Note], scale: list[Interval]): Seq[Note] {
     seq.map(n => Note { ...n, pitch: nearest(scale, n.pitch) })
 }
 ```
 
 ```
-// main.clef
+// main.kan
 
 import "scales"
 
@@ -169,10 +169,10 @@ This is the same model as C# extension methods: they only activate when their co
 If module A imports module B, then module B cannot import module A (directly or transitively). The dependency graph must be a DAG (directed acyclic graph).
 
 ```
-// scales.clef
+// scales.kan
 import "tuning"         // OK
 
-// tuning.clef
+// tuning.kan
 import "scales"         // ERROR: circular import (scales → tuning → scales)
 ```
 
@@ -195,16 +195,16 @@ let bp = xen.bohlen_pierce
 
 When the compiler encounters a URL-style import:
 
-1. Check the local cache (`~/.clef/cache/` or a project-local `.clef-cache/`)
+1. Check the local cache (`~/.kanon/cache/` or a project-local `.kanon-cache/`)
 2. If not cached, clone/fetch the repository
-3. Pin the resolved commit hash in a lockfile (`clef.lock`)
+3. Pin the resolved commit hash in a lockfile (`kanon.lock`)
 
 ### Lockfile
 
 The lockfile ensures reproducible builds. It records the exact commit used for each external dependency.
 
 ```toml
-# clef.lock — auto-generated, commit to version control
+# kanon.lock — auto-generated, commit to version control
 
 [dependencies]
 
@@ -222,9 +222,9 @@ fetched = "2026-03-20T14:00:00Z"
 ### Update Command
 
 ```bash
-clef update                              # update all deps to latest
-clef update "github.com/someone/repo"    # update one dep
-clef update --lock                       # just regenerate lockfile from cache
+kanon update                              # update all deps to latest
+kanon update "github.com/someone/repo"    # update one dep
+kanon update --lock                       # just regenerate lockfile from cache
 ```
 
 ### No Package Registry (v0.1)
@@ -239,7 +239,7 @@ The standard library is divided into a **core** (always available, no import nee
 
 ### Core (Always Available)
 
-These functions and types are in scope in every Clef file without any import:
+These functions and types are in scope in every Kanon file without any import:
 
 - **Basic types:** `Int`, `Ratio`, `Float`, `string`, `bool`, `nil`
 - **Music types:** `Music`, `Control`, `Interval`, `Edo`, `Cents`, `Hz`
@@ -263,19 +263,19 @@ import "std/random"     // (future) rand, weighted_choice, markov
 
 ### Rationale
 
-The core set covers what you need in ~90% of Clef files. Specialized functionality (advanced math, tuning theory, MIDI, randomness) is one import away. This keeps the global namespace manageable while avoiding boilerplate at the top of every file.
+The core set covers what you need in ~90% of Kanon files. Specialized functionality (advanced math, tuning theory, MIDI, randomness) is one import away. This keeps the global namespace manageable while avoiding boilerplate at the top of every file.
 
 ## 9.9 Project Structure
 
-A Clef project has a root directory containing a `clef.toml` manifest (optional for single-file scripts, required for multi-file projects):
+A Kanon project has a root directory containing a `kanon.toml` manifest (optional for single-file scripts, required for multi-file projects):
 
 ```toml
-# clef.toml
+# kanon.toml
 
 [project]
 name = "my-composition"
 version = "0.1.0"
-entry = "main.clef"
+entry = "main.kan"
 
 [dependencies]
 "github.com/someone/xenharmonic-scales" = { branch = "main" }
@@ -285,15 +285,15 @@ entry = "main.clef"
 For single-file scripts, no manifest is needed:
 
 ```bash
-clef run my_sketch.clef        # just run it
+kanon run my_sketch.kan        # just run it
 ```
 
 For multi-file projects:
 
 ```bash
-clef run                       # reads clef.toml, runs entry point
-clef check                     # type-check without running
-clef update                    # update external dependencies
+kanon run                      # reads kanon.toml, runs entry point
+kanon check                    # type-check without running
+kanon update                   # update external dependencies
 ```
 
 ## 9.10 Grammar Additions

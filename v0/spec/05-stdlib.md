@@ -244,7 +244,7 @@ fun volume(v: Voice, level: number): Voice =
 
 3. **Combining all voices with `.par()`** — parallel composition means they play simultaneously.
 
-Here is the implementation in Clef:
+Here is the implementation in Kanon:
 
 ```
 fun mix(voices: list[Voice]): Music {
@@ -400,7 +400,7 @@ fun realize_with(m: Music, ctx: RealizeContext): Seq[Event] = match m {
 
 ### Rendering (Host FFI)
 
-These functions bridge to the host audio engine. Their implementations are native (provided by the host via FFI), not written in Clef.
+These functions bridge to the host audio engine. Their implementations are native (provided by the host via FFI), not written in Kanon.
 
 ```
 fun render(events: Seq[Event], bpm: number, ref: Hz, sample_rate: Int): Audio

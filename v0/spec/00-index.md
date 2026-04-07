@@ -1,4 +1,4 @@
-# Clef Language Specification — Index
+# Kanon Language Specification — Index
 
 **Version 0.2 — Draft**
 

@@ -2,17 +2,17 @@
 
 **Status:** Active  
 **Started:** 2026-04-05  
-**Goal:** A working Clef interpreter in TypeScript that runs in CLI (Bun) and eventually the browser. The purpose is to solidify the language spec through real usage, not to ship production software.
+**Goal:** A working Kanon interpreter in TypeScript that runs in CLI (Bun) and eventually the browser. The purpose is to solidify the language spec through real usage, not to ship production software.
 
 ---
 
 ## Guiding Principles
 
-1. **Mirror the spec's host/guest architecture from day one.** The runtime is pure computation. All I/O flows through a `ClefHost` interface.
+1. **Mirror the spec's host/guest architecture from day one.** The runtime is pure computation. All I/O flows through a `KanonHost` interface.
 2. **`core/` is platform-free.** Nothing in `core/` imports from `cli/`, `web/`, Node, Bun, or browser APIs. If it compiles, it works everywhere.
 3. **Single package, directory boundaries.** No monorepo/workspace overhead. Directories are the module boundary. Split into packages only when there's a reason.
 4. **Three-layer output model.** `parse()` → AST, `eval()` → values/Music trees, `realize()` → Event[]. Each stage is independently useful and testable.
-5. **Tests verify the spec.** Tests are written against spec behavior, not implementation details. They serve as executable documentation of what Clef *is*. Keep them modular so sections can be thrown away when the spec changes.
+5. **Tests verify the spec.** Tests are written against spec behavior, not implementation details. They serve as executable documentation of what Kanon *is*. Keep them modular so sections can be thrown away when the spec changes.
 6. **Errors are first-class from the start.** Every pipeline stage produces structured errors with source locations. A language prototype is useless if you can't tell why your code broke.
 
 ---
@@ -21,7 +21,7 @@
 
 Tests should be:
 
-- **Spec-shaped, not implementation-shaped.** Test "this Clef source produces this result" rather than "the parser calls this internal method." When the implementation changes, the spec-level tests survive.
+- **Spec-shaped, not implementation-shaped.** Test "this Kanon source produces this result" rather than "the parser calls this internal method." When the implementation changes, the spec-level tests survive.
 - **Grouped by language feature, not by implementation file.** A test file like `rationals.test.ts` tests rational literals across scanner, parser, and interpreter — because that's how a spec reader thinks about it. A broken rational is a broken rational regardless of which pipeline stage failed.
 - **Easy to gut and rewrite.** Each test file is self-contained. No shared test fixtures that create coupling. Helpers are small, local, and duplicated rather than shared. Deleting a test file should never break another test file.
 - **Table-driven where possible.** Express expected behavior as data (input/output pairs), not procedural assertions. When the spec changes a behavior, you update one row in a table, not rewrite a test function.
@@ -60,7 +60,7 @@ test/
     generators.test.ts     # gen expressions
     precedence.test.ts     # Pratt parser precedence edge cases
     errors.test.ts         # parse error recovery and messages
-  eval/                    # interpreter-level tests (source → ClefValue)
+  eval/                    # interpreter-level tests (source → KanonValue)
     arithmetic.test.ts     # numeric tower, exactness, auto-simplify
     bindings.test.ts       # let, mut, scoping, shadowing
     functions.test.ts      # fun decl, lambdas, closures, recursion
@@ -89,10 +89,10 @@ Keep this tiny. It's the only shared file. It provides convenience wrappers so t
 // test/helpers.ts — keep this small and stable
 export function scan(source: string): Token[]
 export function parse(source: string): Ast.Program
-export function evalSource(source: string): ClefValue       // full program
-export function evalExpr(source: string): ClefValue         // single expression
+export function evalSource(source: string): KanonValue      // full program
+export function evalExpr(source: string): KanonValue        // single expression
 export function realizeSource(source: string): Event[]      // eval + realize
-export function testHost(): ClefHost                        // stub host that captures print() calls
+export function testHost(): KanonHost                       // stub host that captures print() calls
 ```
 
 If a test file needs something not in `helpers.ts`, it defines it locally. No creeping shared state.
@@ -112,15 +112,15 @@ v0/
       scanner.ts           # exports scan(): Token[]  (stub: returns [])
       parser.ts            # exports parse(): Ast.Program  (stub: returns empty program)
       ast.ts               # AST node type definitions
-      values.ts            # ClefValue discriminated union
-      interpreter.ts       # exports eval(): ClefValue  (stub: returns Nil)
+      values.ts            # KanonValue discriminated union
+      interpreter.ts       # exports eval(): KanonValue  (stub: returns Nil)
       environment.ts       # Environment class (scope chain)
-      errors.ts            # ClefError type, error construction helpers
+      errors.ts            # KanonError type, error construction helpers
       stdlib/              # empty dir, populated in later phases
-    host.ts                # ClefHost interface
-    runtime.ts             # ClefRuntime class wiring core + host
+    host.ts                # KanonHost interface
+    runtime.ts             # KanonRuntime class wiring core + host
     cli/
-      main.ts              # entry point: clef run / eval / ast
+      main.ts              # entry point: kanon run / eval / ast
   test/
     helpers.ts             # test utilities
     smoke.test.ts          # "it compiles and runs" sanity check
@@ -130,16 +130,16 @@ v0/
 
 ### Key type definitions to establish
 
-**`ClefHost`** — the boundary contract:
+**`KanonHost`** — the boundary contract:
 ```typescript
-interface ClefHost {
+interface KanonHost {
   print(value: string): void
 }
 ```
 
-**`ClefError`** — structured errors from any pipeline stage:
+**`KanonError`** — structured errors from any pipeline stage:
 ```typescript
-interface ClefError {
+interface KanonError {
   message: string
   line: number
   column: number
@@ -147,9 +147,9 @@ interface ClefError {
 }
 ```
 
-**`ClefValue`** — the runtime value discriminated union (initially just the skeleton, filled in across phases):
+**`KanonValue`** — the runtime value discriminated union (initially just the skeleton, filled in across phases):
 ```typescript
-type ClefValue =
+type KanonValue =
   | { type: "nil" }
   | { type: "bool"; value: boolean }
   | { type: "int"; value: bigint }
@@ -159,14 +159,14 @@ type ClefValue =
   // ... expanded in later phases
 ```
 
-**`ClefRuntime`** — the pipeline orchestrator:
+**`KanonRuntime`** — the pipeline orchestrator:
 ```typescript
-class ClefRuntime {
-  constructor(host: ClefHost)
+class KanonRuntime {
+  constructor(host: KanonHost)
   scan(source: string): Token[]
   parse(source: string): Ast.Program
-  eval(source: string): ClefValue
-  realize(music: ClefValue): Event[]
+  eval(source: string): KanonValue
+  realize(music: KanonValue): Event[]
 }
 ```
 
@@ -181,7 +181,7 @@ class ClefRuntime {
 
 ## Phase 1: Scanner
 
-**Goal:** Tokenize all Clef source forms defined in spec §2. The scanner takes a source string and produces a flat array of tokens with source locations.
+**Goal:** Tokenize all Kanon source forms defined in spec §2. The scanner takes a source string and produces a flat array of tokens with source locations.
 
 ### What to implement
 
@@ -250,7 +250,7 @@ enum TokenType {
 
 ## Phase 2: AST + Parser
 
-**Goal:** Parse all Clef syntax from spec §4 and §6 into a typed AST. The parser is a hand-rolled recursive descent with Pratt parsing for expressions, following the precedence table in §6.2.
+**Goal:** Parse all Kanon syntax from spec §4 and §6 into a typed AST. The parser is a hand-rolled recursive descent with Pratt parsing for expressions, following the precedence table in §6.2.
 
 ### What to implement
 
@@ -337,20 +337,20 @@ type Expr =
 - [ ] **Enum declarations**: `enum Music { Note(...), Rest(...), Seq(...), Par(...), Modify(...) }`
 - [ ] **Fun declarations**: single-expression (`= expr`) and block forms, with generics
 - [ ] **UFCS chains**: `x.f(a).g(b).h(c)` parses as nested member+call
-- [ ] **Parse errors**: missing closing brace, unexpected token, etc. produce `ClefError` with line/column, not crashes
+- [ ] **Parse errors**: missing closing brace, unexpected token, etc. produce `KanonError` with line/column, not crashes
 - [ ] **Round-trip spot checks**: parse a few §7 examples and verify the AST shape makes sense (doesn't need to be exhaustive yet — just catch gross structural errors)
 
 ---
 
 ## Phase 3: Interpreter + Values
 
-**Goal:** A working tree-walk interpreter that evaluates Clef programs into `ClefValue` results. This is the core of the language — after this phase, Clef programs actually *run*.
+**Goal:** A working tree-walk interpreter that evaluates Kanon programs into `KanonValue` results. This is the core of the language — after this phase, Kanon programs actually *run*.
 
 ### What to implement
 
-**Value system (expand `ClefValue`):**
+**Value system (expand `KanonValue`):**
 - `nil`, `bool`, `int` (bigint), `float` (number), `ratio` (exact rational with GCD reduction), `string`
-- `list` (immutable array of ClefValue)
+- `list` (immutable array of KanonValue)
 - `closure` (captured environment + params + body)
 - `host_fn` (TypeScript function registered by the host)
 - `type_instance` (product type value with named fields)
@@ -405,18 +405,18 @@ type Expr =
 - [ ] **Pipe**: `5 |> double` → `10`
 - [ ] **String interpolation**: `let x = 42; "value: ${x}"` → `"value: 42"`
 - [ ] **Generators**: `gen n in [1,2,3] n * 2` produces lazy seq that yields `[2, 4, 6]`
-- [ ] **Error messages**: accessing undefined variable, type mismatch in operator, wrong arg count — all produce `ClefError` with source location
+- [ ] **Error messages**: accessing undefined variable, type mismatch in operator, wrong arg count — all produce `KanonError` with source location
 - [ ] **Spec §7.1** (hello world melody) runs: builds a list of edo values, maps them, reduces — produces a Music value (realization tested in Phase 4)
 
 ---
 
 ## Phase 4: Stdlib + Music + Realize
 
-**Goal:** Implement the standard library functions from spec §5, the `Music` algebraic type, and `realize()` to produce `Event[]`. After this phase, Clef programs produce playable music.
+**Goal:** Implement the standard library functions from spec §5, the `Music` algebraic type, and `realize()` to produce `Event[]`. After this phase, Kanon programs produce playable music.
 
 ### What to implement
 
-**Music types (add to `ClefValue`):**
+**Music types (add to `KanonValue`):**
 - `music` variant: `Note`, `Rest`, `Seq`, `Par`, `Modify` — recursive tree
 - `control` variant: `Tempo`, `Transpose`, `Instrument`, `Volume`, `Custom`
 - `event` type: `{ time, pitch, duration, velocity, instrument }`
@@ -486,15 +486,15 @@ export function register(env: Environment) {
 
 ## Phase 5: CLI + REPL
 
-**Goal:** A usable command-line interface for running Clef programs, evaluating expressions, dumping ASTs, and interactive exploration.
+**Goal:** A usable command-line interface for running Kanon programs, evaluating expressions, dumping ASTs, and interactive exploration.
 
 ### What to implement
 
 **CLI commands (via Bun):**
-- `clef run <file.clef>` — evaluate a file, print the final value
-- `clef eval "<expr>"` — evaluate a single expression, print the result
-- `clef ast <file.clef>` — parse a file, pretty-print the AST as a tree
-- `clef realize <file.clef>` — evaluate + realize, print events as JSON/table
+- `kanon run <file.kan>` — evaluate a file, print the final value
+- `kanon eval "<expr>"` — evaluate a single expression, print the result
+- `kanon ast <file.kan>` — parse a file, pretty-print the AST as a tree
+- `kanon realize <file.kan>` — evaluate + realize, print events as JSON/table
 
 **REPL:**
 - Interactive prompt, evaluate line-by-line
@@ -511,9 +511,9 @@ export function register(env: Environment) {
 
 ### Verification
 
-- [ ] `clef run` on a file containing spec §7.1 produces output without error
-- [ ] `clef eval "3/2 + 5/4"` prints `11/4`
-- [ ] `clef ast` on a small program prints a readable tree
+- [ ] `kanon run` on a file containing spec §7.1 produces output without error
+- [ ] `kanon eval "3/2 + 5/4"` prints `11/4`
+- [ ] `kanon ast` on a small program prints a readable tree
 - [ ] REPL: multiline definitions work, previous bindings persist
 - [ ] Errors display with line/column pointing at the problem
 
@@ -521,9 +521,9 @@ export function register(env: Environment) {
 
 ## Phase 6: Browser Host (Future)
 
-**Goal:** A browser-based playground where users write Clef code, hear it via Web Audio, and see visualizations.
+**Goal:** A browser-based playground where users write Kanon code, hear it via Web Audio, and see visualizations.
 
-This phase is deliberately unspecified — by the time we get here, the language will have evolved enough that detailed planning now would be wasted. The architecture supports it: `ClefRuntime` with a browser `ClefHost` that routes `print()` to a UI panel, and `Event[]` to Web Audio scheduling.
+This phase is deliberately unspecified — by the time we get here, the language will have evolved enough that detailed planning now would be wasted. The architecture supports it: `KanonRuntime` with a browser `KanonHost` that routes `print()` to a UI panel, and `Event[]` to Web Audio scheduling.
 
 **Rough shape:**
 - Code editor (Monaco or CodeMirror)

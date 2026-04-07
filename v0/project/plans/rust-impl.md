@@ -6,7 +6,7 @@
 
 Use a hand-rolled recursive descent parser with Pratt parsing for expressions (see §6 for the full grammar and precedence table).
 
-The scanner produces tokens; the parser consumes them to build an AST. A single-pass parser is sufficient for Clef's grammar — there are no forward references that require multiple passes (type declarations can be used before they appear in the source via a pre-pass or lazy resolution).
+The scanner produces tokens; the parser consumes them to build an AST. A single-pass parser is sufficient for Kanon's grammar — there are no forward references that require multiple passes (type declarations can be used before they appear in the source via a pre-pass or lazy resolution).
 
 **Key parsing challenges:**
 
@@ -27,13 +27,13 @@ The scanner produces tokens; the parser consumes them to build an AST. A single-
 
 ### Overview
 
-Clef v0.1 is a **tree-walk interpreter written in Rust**. This is the fastest path to a working implementation. A bytecode VM can be added later as an optimization (following the Crafting Interpreters progression: tree-walk first, bytecode second).
+Kanon v0.1 is a **tree-walk interpreter written in Rust**. This is the fastest path to a working implementation. A bytecode VM can be added later as an optimization (following the Crafting Interpreters progression: tree-walk first, bytecode second).
 
 The runtime has these components:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  ClefState                       │
+│                  KanonState                      │
 │                                                  │
 │  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │
 │  │ Scanner  │→│  Parser  │→│  Interpreter   │  │
@@ -54,7 +54,7 @@ The runtime has these components:
 
 ### Value Representation
 
-All Clef values are represented as a Rust enum wrapped in `Arc` (atomic reference counting) for shared ownership:
+All Kanon values are represented as a Rust enum wrapped in `Arc` (atomic reference counting) for shared ownership:
 
 ```rust
 use std::sync::Arc;
@@ -104,7 +104,7 @@ pub enum MusicNode {
 - FFI-friendly: hosts hold `Arc` references (exposed as opaque pointers via C API)
 - WASM-friendly: no GC runtime needed in the WASM module
 
-**The cycle problem:** Reference cycles cause memory leaks with pure refcounting. For Clef, this is manageable:
+**The cycle problem:** Reference cycles cause memory leaks with pure refcounting. For Kanon, this is manageable:
 
 - `Music` trees are **acyclic by construction** — recursive algebraic types where nodes point to children, never parents
 - `List` and `TypeInstance` values are acyclic
@@ -197,33 +197,33 @@ fn call_value(callee: &Value, args: &[Value]) -> Result<Value, Error> {
 
 ## 8.3 Hosting API
 
-Clef is designed to be embedded. Two influences:
+Kanon is designed to be embedded. Two influences:
 
 - **Lua:** Host creates and owns the interpreter state. Communication via a simple API. Host registers native functions. Multiple independent states can coexist.
-- **Roc:** Host controls what capabilities are available. Clef scripts are pure computation — all I/O comes from host-provided functions.
+- **Roc:** Host controls what capabilities are available. Kanon scripts are pure computation — all I/O comes from host-provided functions.
 
-### The Rust API (`clef-core`)
+### The Rust API (`kanon-core`)
 
 ```rust
-pub struct ClefState { /* internal */ }
+pub struct KanonState { /* internal */ }
 
-impl ClefState {
+impl KanonState {
     pub fn new() -> Self;                         // with standard library
     pub fn bare() -> Self;                        // no stdlib
     pub fn load_stdlib_music(&mut self);
     pub fn load_stdlib_seq(&mut self);
     pub fn load_stdlib_math(&mut self);
     pub fn load_stdlib_tuning(&mut self);
-    pub fn eval(&mut self, source: &str) -> Result<Value, ClefError>;
-    pub fn eval_file(&mut self, path: &Path) -> Result<Value, ClefError>;
+    pub fn eval(&mut self, source: &str) -> Result<Value, KanonError>;
+    pub fn eval_file(&mut self, path: &Path) -> Result<Value, KanonError>;
     pub fn get_global(&self, name: &str) -> Option<Value>;
     pub fn set_global(&mut self, name: &str, value: Value);
     pub fn register_fn<F>(&mut self, name: &str, f: F)
-    where F: Fn(&[Value]) -> Result<Value, ClefError> + 'static;
-    pub fn realize(&mut self, music: &Value) -> Result<Vec<Event>, ClefError>;
+    where F: Fn(&[Value]) -> Result<Value, KanonError> + 'static;
+    pub fn realize(&mut self, music: &Value) -> Result<Vec<Event>, KanonError>;
 }
 
-/// The bridge type between Clef and host audio engines
+/// The bridge type between Kanon and host audio engines
 #[derive(Clone, Debug)]
 pub struct Event {
     pub time: BigRational,
@@ -235,15 +235,15 @@ pub struct Event {
 }
 ```
 
-### The C API (`clef-capi`)
+### The C API (`kanon-capi`)
 
 A thin `extern "C"` wrapper enabling hosting from C, C++, Python, Go, Swift, and any language with C FFI.
 
 ```c
-/* clef.h — Clef Embeddable Runtime C API */
+/* kanon.h — Kanon Embeddable Runtime C API */
 
-#ifndef CLEF_H
-#define CLEF_H
+#ifndef KANON_H
+#define KANON_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -253,80 +253,80 @@ extern "C" {
 #endif
 
 /* Opaque handles */
-typedef struct ClefState ClefState;
-typedef struct ClefValue ClefValue;
+typedef struct KanonState KanonState;
+typedef struct KanonValue KanonValue;
 
 /* Lifecycle */
-ClefState* clef_new(void);
-ClefState* clef_bare(void);
-void       clef_free(ClefState* state);
+KanonState* kanon_new(void);
+KanonState* kanon_bare(void);
+void        kanon_free(KanonState* state);
 
 /* Evaluation */
-int         clef_eval(ClefState* state, const char* source, size_t len);
-int         clef_eval_file(ClefState* state, const char* path);
-const char* clef_last_error(ClefState* state);
+int         kanon_eval(KanonState* state, const char* source, size_t len);
+int         kanon_eval_file(KanonState* state, const char* path);
+const char* kanon_last_error(KanonState* state);
 
 /* Globals */
-ClefValue*  clef_get_global(ClefState* state, const char* name);
-void        clef_set_global(ClefState* state, const char* name, ClefValue* val);
+KanonValue* kanon_get_global(KanonState* state, const char* name);
+void        kanon_set_global(KanonState* state, const char* name, KanonValue* val);
 
 /* Host functions */
-typedef ClefValue* (*ClefHostFn)(ClefState*, int, const ClefValue* const*);
-void clef_register_fn(ClefState* state, const char* name, ClefHostFn fn);
+typedef KanonValue* (*KanonHostFn)(KanonState*, int, const KanonValue* const*);
+void kanon_register_fn(KanonState* state, const char* name, KanonHostFn fn);
 
 /* Value construction */
-ClefValue*  clef_nil(void);
-ClefValue*  clef_bool(int b);
-ClefValue*  clef_int(int64_t n);
-ClefValue*  clef_ratio(int64_t numer, int64_t denom);
-ClefValue*  clef_float(double n);
-ClefValue*  clef_string(const char* s, size_t len);
+KanonValue* kanon_nil(void);
+KanonValue* kanon_bool(int b);
+KanonValue* kanon_int(int64_t n);
+KanonValue* kanon_ratio(int64_t numer, int64_t denom);
+KanonValue* kanon_float(double n);
+KanonValue* kanon_string(const char* s, size_t len);
 
 /* Value inspection */
 typedef enum {
     CLEF_NIL, CLEF_BOOL, CLEF_INT, CLEF_RATIO, CLEF_FLOAT,
     CLEF_STRING, CLEF_LIST, CLEF_MUSIC, CLEF_EDO, CLEF_CENTS, CLEF_HZ,
     CLEF_CLOSURE, CLEF_TYPE_INSTANCE, CLEF_ENUM_VARIANT,
-} ClefValueKind;
+} KanonValueKind;
 
-ClefValueKind clef_kind(const ClefValue* val);
-int64_t       clef_as_int(const ClefValue* val);
-double        clef_as_float(const ClefValue* val);
-const char*   clef_as_string(const ClefValue* val, size_t* out_len);
+KanonValueKind kanon_kind(const KanonValue* val);
+int64_t        kanon_as_int(const KanonValue* val);
+double         kanon_as_float(const KanonValue* val);
+const char*    kanon_as_string(const KanonValue* val, size_t* out_len);
 
 /* Reference counting */
-void clef_retain(ClefValue* val);
-void clef_release(ClefValue* val);
+void kanon_retain(KanonValue* val);
+void kanon_release(KanonValue* val);
 
 /* Music */
-ClefValue*  clef_realize(ClefState* state, ClefValue* music);
-int         clef_event_count(const ClefValue* events);
-double      clef_event_time(const ClefValue* events, int index);
-double      clef_event_pitch_cents(const ClefValue* events, int index);
-double      clef_event_duration(const ClefValue* events, int index);
-double      clef_event_velocity(const ClefValue* events, int index);
-const char* clef_event_instrument(const ClefValue* events, int index);
+KanonValue* kanon_realize(KanonState* state, KanonValue* music);
+int         kanon_event_count(const KanonValue* events);
+double      kanon_event_time(const KanonValue* events, int index);
+double      kanon_event_pitch_cents(const KanonValue* events, int index);
+double      kanon_event_duration(const KanonValue* events, int index);
+double      kanon_event_velocity(const KanonValue* events, int index);
+const char* kanon_event_instrument(const KanonValue* events, int index);
 
 /* Selective stdlib loading */
-void clef_load_stdlib_all(ClefState* state);
-void clef_load_stdlib_math(ClefState* state);
-void clef_load_stdlib_seq(ClefState* state);
-void clef_load_stdlib_music(ClefState* state);
-void clef_load_stdlib_tuning(ClefState* state);
+void kanon_load_stdlib_all(KanonState* state);
+void kanon_load_stdlib_math(KanonState* state);
+void kanon_load_stdlib_seq(KanonState* state);
+void kanon_load_stdlib_music(KanonState* state);
+void kanon_load_stdlib_tuning(KanonState* state);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* CLEF_H */
+#endif /* KANON_H */
 ```
 
 ### C API Design Principles
 
 - **Small and stable.** Every function is a compatibility promise. Start minimal; add convenience later.
-- **Opaque pointers.** `ClefState*` and `ClefValue*` hide internals. The Rust implementation can change without breaking the ABI.
-- **Explicit refcounting.** Host receives one reference from API calls. Must call `clef_release` when done, `clef_retain` to keep longer. Same model as Core Foundation / COM.
-- **No exceptions across FFI.** Errors via return codes and `clef_last_error()`.
-- **Thread safety rule.** A single `ClefState` is NOT thread-safe. For concurrent use, create multiple states. The audio thread reads realized event lists (plain data, `Arc`-shared) but never touches the `ClefState`.
+- **Opaque pointers.** `KanonState*` and `KanonValue*` hide internals. The Rust implementation can change without breaking the ABI.
+- **Explicit refcounting.** Host receives one reference from API calls. Must call `kanon_release` when done, `kanon_retain` to keep longer. Same model as Core Foundation / COM.
+- **No exceptions across FFI.** Errors via return codes and `kanon_last_error()`.
+- **Thread safety rule.** A single `KanonState` is NOT thread-safe. For concurrent use, create multiple states. The audio thread reads realized event lists (plain data, `Arc`-shared) but never touches the `KanonState`.
 
 ---
 
@@ -343,7 +343,7 @@ Browser:
 │  ├─ Canvas/WebGL (visualization)             │
 │  └─ calls into ↓ via wasm-bindgen            │
 ├─────────────────────────────────────────────┤
-│  Clef Runtime (WASM)                         │
+│  Kanon Runtime (WASM)                        │
 │  ├─ eval(source) → Value                     │
 │  ├─ realize(music) → Event[]                 │
 │  ├─ Rc-based (single-threaded, no atomics)   │
@@ -371,10 +371,10 @@ type Shared<T> = std::sync::Arc<T>;
 
 ```rust
 #[wasm_bindgen]
-pub struct ClefWasm { state: ClefState }
+pub struct KanonWasm { state: KanonState }
 
 #[wasm_bindgen]
-impl ClefWasm {
+impl KanonWasm {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self;
     pub fn eval(&mut self, source: &str) -> Result<JsValue, JsError>;
@@ -391,7 +391,7 @@ impl ClefWasm {
 User edits code, clicks Play. Events rendered via Web Audio, visualized on Canvas.
 
 ```
-User code → ClefWasm.eval() → ClefWasm.realize_to_json()
+User code → KanonWasm.eval() → KanonWasm.realize_to_json()
                                          │
                           ┌──────────────┴──────────────┐
                           ▼                              ▼
@@ -399,16 +399,16 @@ User code → ClefWasm.eval() → ClefWasm.realize_to_json()
                    (schedule notes)            (piano roll / tree viz)
 ```
 
-### Pattern 2: DAW with Clef Scripting
+### Pattern 2: DAW with Kanon Scripting
 
-Desktop DAW embeds Clef. Audio thread and Clef thread are separate.
+Desktop DAW embeds Kanon. Audio thread and Kanon thread are separate.
 
 ```
 UI Thread:                        Audio Thread:
-  ClefState (owns interpreter)      reads Arc<Vec<Event>>
+    KanonState (owns interpreter)     reads Arc<Vec<Event>>
   on edit → eval → realize          schedules sample-accurately
   sends events via channel          runs synthesis (native)
-                                    NEVER touches ClefState
+                                    NEVER touches KanonState
 ```
 
 ### Pattern 3: Sandboxed Plugin System (Roc-style)
@@ -416,21 +416,21 @@ UI Thread:                        Audio Thread:
 Host provides only curated primitives. Untrusted scripts cannot access filesystem, network, or anything the host doesn't explicitly provide.
 
 ```rust
-let mut clef = ClefState::bare();  // no stdlib at all
-clef.register_fn("note", host_note_fn);
-clef.register_fn("seq", host_seq_fn);
+let mut kanon = KanonState::bare();  // no stdlib at all
+kanon.register_fn("note", host_note_fn);
+kanon.register_fn("seq", host_seq_fn);
 // no file I/O, no network — scripts are sandboxed by construction
-clef.eval(untrusted_user_script)?;
+kanon.eval(untrusted_user_script)?;
 ```
 
 ### Pattern 4: Embedding in Other Languages
 
-Via the C API, Clef can be hosted from any language:
+Via the C API, Kanon can be hosted from any language:
 
-- **Python:** `ctypes.cdll.LoadLibrary("libclef.so")` → call `clef_new`, `clef_eval`, etc.
-- **Go:** `cgo` with `#include "clef.h"`
+- **Python:** `ctypes.cdll.LoadLibrary("libkanon.so")` → call `kanon_new`, `kanon_eval`, etc.
+- **Go:** `cgo` with `#include "kanon.h"`
 - **Swift:** direct C interop
-- **C++:** include `clef.h`, link against `libclef`
+- **C++:** include `kanon.h`, link against `libkanon`
 - **Node.js:** N-API wrapper or WASM module
 
 ---
@@ -438,8 +438,8 @@ Via the C API, Clef can be hosted from any language:
 ## 8.6 Crate Structure
 
 ```
-clef/
-├── clef-core/            # core: scanner, parser, interpreter, values
+kanon/
+├── kanon-core/           # core: scanner, parser, interpreter, values
 │   ├── src/
 │   │   ├── lib.rs
 │   │   ├── scanner.rs
@@ -460,16 +460,16 @@ clef/
 │   │       └── tuning.rs
 │   └── Cargo.toml
 │
-├── clef-cli/             # REPL and file runner
+├── kanon-cli/            # REPL and file runner
 │   ├── src/main.rs
 │   └── Cargo.toml
 │
-├── clef-capi/            # C API (extern "C")
+├── kanon-capi/           # C API (extern "C")
 │   ├── src/lib.rs
-│   ├── include/clef.h
+│   ├── include/kanon.h
 │   └── Cargo.toml        # cdylib + staticlib
 │
-├── clef-wasm/            # WASM bindings
+├── kanon-wasm/           # WASM bindings
 │   ├── src/lib.rs
 │   └── Cargo.toml        # wasm32-unknown-unknown
 │
@@ -478,11 +478,11 @@ clef/
 
 | Target | Crate | Output | Use |
 |--------|-------|--------|-----|
-| Rust library | `clef-core` | `libclef.rlib` | Rust hosts link directly |
-| C shared lib | `clef-capi` | `libclef.so` / `.dll` / `.dylib` | Any language with C FFI |
-| C static lib | `clef-capi` | `libclef.a` | Statically linked hosts |
-| WASM | `clef-wasm` | `.wasm` + JS glue | Browser playground |
-| CLI | `clef-cli` | `clef` binary | REPL, running .clef files |
+| Rust library | `kanon-core` | `libkanon.rlib` | Rust hosts link directly |
+| C shared lib | `kanon-capi` | `libkanon.so` / `.dll` / `.dylib` | Any language with C FFI |
+| C static lib | `kanon-capi` | `libkanon.a` | Statically linked hosts |
+| WASM | `kanon-wasm` | `.wasm` + JS glue | Browser playground |
+| CLI | `kanon-cli` | `kanon` binary | REPL, running .kan files |
 
 ---
 

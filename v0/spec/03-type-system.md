@@ -8,7 +8,7 @@
 
 ## 3.1 Numeric Tower
 
-Clef's numeric tower follows the Racket model: **exact by default, inexactness taints.**
+Kanon's numeric tower follows the Racket model: **exact by default, inexactness taints.**
 
 ```
         Complex[Ratio]    Complex[Float]
@@ -57,7 +57,7 @@ float(3/2)           // Ratio → Float: 1.5
 
 ## 3.3 Type Declarations
 
-Clef has three type declaration forms: **product types**, **sum types**, and **type aliases**.
+Kanon has three type declaration forms: **product types**, **sum types**, and **type aliases**.
 
 ### Product Types (`type`)
 

@@ -6,11 +6,11 @@
 > - 2026-04-05 — Initial draft
 > - 2026-04-06 — Added metadata headers
 
-## 1.1 What Is Clef?
+## 1.1 What Is Kanon?
 
-Clef is a domain-specific language for composing microtonal music. It provides first-class rational numbers, lazy generators, algebraic music types, and C-family syntax in a garbage-collected, interpreted runtime.
+Kanon is a domain-specific language for composing microtonal music. It provides first-class rational numbers, lazy generators, algebraic music types, and C-family syntax in a garbage-collected, interpreted runtime.
 
-The name "Clef" refers to the musical symbol that establishes pitch on a staff. (The community nickname "Clefff" — triple forte — is optional but encouraged.)
+The name "Kanon" refers to the Pythagorean monochord, the single-string instrument used to demonstrate that consonant musical intervals arise from exact numerical ratios. It fits a language built around exact rationals, interval structure, and composition as mathematics made audible. The name also resonates with the musical idea of a canon and with the modern use of Kanon as a musical given name.
 
 ## 1.2 Design Principles
 
@@ -18,7 +18,7 @@ The name "Clef" refers to the musical symbol that establishes pitch on a staff. 
 
 **Composability.** Everything composes: functions via UFCS, sequences via generators, musical structures via algebraic operators. User-defined operations are indistinguishable from built-ins. This follows Guy Steele's growability principle: a language should start small, and user-defined abstractions should look and behave like primitives.
 
-**Familiarity.** C-family syntax with TypeScript-style type annotations. Fat-arrow lambdas. Curly braces. `fun` for function declarations. A JS/C#/Kotlin developer should be able to read Clef code on day one.
+**Familiarity.** C-family syntax with TypeScript-style type annotations. Fat-arrow lambdas. Curly braces. `fun` for function declarations. A JS/C#/Kotlin developer should be able to read Kanon code on day one.
 
 **Music-native types.** EDO steps, cents, frequencies, and intervals are first-class with literal syntax and unit safety. The core `Music` algebraic type supports structural composition, transformation, and analysis.
 
@@ -26,12 +26,12 @@ The name "Clef" refers to the musical symbol that establishes pitch on a staff. 
 
 ## 1.3 Architecture
 
-Clef is designed to be embedded in a host audio engine, analogous to how Lua, sclang (SuperCollider), or Python are used in audio systems. The host handles real-time sample-level rendering; Clef handles composition, pattern generation, and structural manipulation.
+Kanon is designed to be embedded in a host audio engine, analogous to how Lua, sclang (SuperCollider), or Python are used in audio systems. The host handles real-time sample-level rendering; Kanon handles composition, pattern generation, and structural manipulation.
 
 ```
 ┌─────────────────────────────┐
-│  Clef Source Code            │
-│  (.clef files)               │
+│  Kanon Source Code           │
+│  (.kan files)                │
 └────────────┬────────────────┘
              │ parse
              ▼
@@ -54,11 +54,11 @@ Clef is designed to be embedded in a host audio engine, analogous to how Lua, sc
 └─────────────────────────────┘
 ```
 
-The boundary between Clef and the host is the `Event` type — a flat, time-sorted list of `(time, pitch, duration, velocity, instrument)` tuples. The `realize` function walks a `Music` tree and produces this event list. The host consumes it for synthesis, MIDI output, or notation rendering.
+The boundary between Kanon and the host is the `Event` type — a flat, time-sorted list of `(time, pitch, duration, velocity, instrument)` tuples. The `realize` function walks a `Music` tree and produces this event list. The host consumes it for synthesis, MIDI output, or notation rendering.
 
 ## 1.4 Influences
 
-| Influence | What Clef borrows |
+| Influence | What Kanon borrows |
 |-----------|-------------------|
 | Racket/Scheme | Exact-by-default numeric tower, rational literal syntax |
 | JavaScript/TypeScript | Fat-arrow lambdas, type annotation style, `[]` generics |

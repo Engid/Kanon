@@ -107,10 +107,10 @@ Same function, two roles, zero extra syntax.
 A type only satisfies an interface using functions that are **in scope**. If `transpose` is defined in another module, you must import it for the match to work:
 
 ```
-// transforms.clef
+// transforms.kan
 fun transpose(n: Note, interval: Interval): Note = ...
 
-// main.clef
+// main.kan
 import "transforms" { transpose }
 
 // NOW Note satisfies Pitched (because transpose is in scope)
@@ -130,9 +130,9 @@ This prevents phantom interface satisfaction from transitive dependencies — sa
 | **Rust** | `trait` | Nominal | Yes (`impl Trait for Type`) |
 | **C#** | `interface` | Nominal | Yes (`class Foo : IBar`) |
 | **Swift** | `protocol` | Nominal | Yes (`struct Foo: Bar`) |
-| **Clef** | `interface` | **Structural** | **No** |
+| **Kanon** | `interface` | **Structural** | **No** |
 
-Clef follows the Go/TypeScript camp: structural matching, no explicit declaration.
+Kanon follows the Go/TypeScript camp: structural matching, no explicit declaration.
 
 ---
 

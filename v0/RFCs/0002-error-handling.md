@@ -8,13 +8,13 @@
 
 ## Summary
 
-Clef uses **Result types** for recoverable errors and **panic** for unrecoverable errors. No exceptions, no try/catch. The `?` operator provides ergonomic early-return on errors.
+Kanon uses **Result types** for recoverable errors and **panic** for unrecoverable errors. No exceptions, no try/catch. The `?` operator provides ergonomic early-return on errors.
 
 ---
 
 ## Motivation
 
-Most Clef music code is pure computation — building Music trees, transforming them, chaining sequences. Errors are rare in this domain. But at system boundaries (file I/O, parsing external input, host FFI), failure is possible and must be handled explicitly.
+Most Kanon music code is pure computation — building Music trees, transforming them, chaining sequences. Errors are rare in this domain. But at system boundaries (file I/O, parsing external input, host FFI), failure is possible and must be handled explicitly.
 
 Exception-based error handling (try/catch) conflates control flow with error signaling, makes error paths invisible in function signatures, and is difficult to reason about in functional-style code. Result types make errors explicit in the type system — a function that can fail says so in its return type.
 
@@ -96,7 +96,7 @@ Division of rationals by zero (`1/0`) is a compile-time or parse-time error sinc
 | **Swift** | `throws` + `try`/`catch` | Exception-style syntax over value types |
 | **Zig** | `!T` error unions | Compact syntax, similar semantics to Result |
 
-Clef follows Rust most closely — `Result[T, E]` with generic type parameters and the `?` operator for ergonomic propagation.
+Kanon follows Rust most closely — `Result[T, E]` with generic type parameters and the `?` operator for ergonomic propagation.
 
 ---
 

@@ -12,15 +12,17 @@ This document collects design discussions, unresolved questions, and ideas for f
 
 ## Naming
 
-**Current working name:** Clef (internally). There's an existing "Clef" language (F# fork with MLIR backend) at github.com/FidelityFramework/clef. It's early-stage but the name is claimed.
+**Current name:** Kanon.
 
-**Alternatives considered:**
-- **Clefff** (triple forte, fff) — playful, domain `clefff.org` is available, file extension `.fff` is fun
-- **Forte** — `ffforte.org` is available
-- **Trill** — musical, short, playful, `.trill` extension
-- Other musical terms: Motif, Stave, Ledger, Comma, Diesis, Sfz
+Kanon is the Greek name of the Pythagorean monochord, the single-string instrument used to demonstrate that consonant intervals arise from exact whole-number ratios. That makes it a direct fit for a language built around exact rationals, tunings, and compositional structure.
 
-**Decision:** Using "Clef" as working name. Final name TBD before public release.
+**Why it works:**
+- It ties the project directly to the historical discovery that music and mathematics are linked by ratio.
+- It matches the language's emphasis on exact numeric relationships, especially rational intervals.
+- It also echoes the musical idea of a canon, which fits layering and offset composition.
+- Kanon is also used as a Japanese given name with musical associations, which gives the name an additional musical resonance.
+
+**Decision:** The language name is Kanon. The file extension is `.kan`. Tooling and project artifacts use the `kanon` prefix.
 
 ---
 
@@ -116,9 +118,9 @@ This document collects design discussions, unresolved questions, and ideas for f
 import "../../my-local-lib"    // relative path
 ```
 
-**Open question:** Version constraints. The lockfile pins commits, but should `clef.toml` support version ranges like `>= 1.0, < 2.0`? Probably yes eventually, but not in v0.1. For now, pin to a branch or tag.
+**Open question:** Version constraints. The lockfile pins commits, but should `kanon.toml` support version ranges like `>= 1.0, < 2.0`? Probably yes eventually, but not in v0.1. For now, pin to a branch or tag.
 
-**Ginger Bill's anti-package-manager stance (Odin):** Worth considering. His argument is that package managers create more problems than they solve (supply chain attacks, dependency hell, leftpad incidents). The git-URL approach sidesteps some of these by making dependencies explicit and auditable. A curated "awesome-clef" list could serve as discovery without needing infrastructure.
+**Ginger Bill's anti-package-manager stance (Odin):** Worth considering. His argument is that package managers create more problems than they solve (supply chain attacks, dependency hell, leftpad incidents). The git-URL approach sidesteps some of these by making dependencies explicit and auditable. A curated "awesome-kanon" list could serve as discovery without needing infrastructure.
 
 ---
 
@@ -141,19 +143,19 @@ trait Pitched {
 
 ## Hosting: Browser Playground
 
-**Target:** A web-based playground where users can write Clef code, hear it rendered via Web Audio, and see visualizations of the Music tree and piano roll.
+**Target:** A web-based playground where users can write Kanon code, hear it rendered via Web Audio, and see visualizations of the Music tree and piano roll.
 
 **Tech stack sketch:**
 - Monaco editor (VS Code's editor component) for code editing
-- Clef runtime compiled to WASM
+- Kanon runtime compiled to WASM
 - Web Audio API for sound output (OscillatorNode for simple synthesis, AudioWorklet for custom)
 - Canvas or WebGL for visualization (piano roll, Music tree, waveform)
 - Maybe Tone.js as a higher-level audio framework
 
 **Open question:** How to handle the "render" step. Options:
-1. Clef `realize` produces events → JS schedules them via Web Audio (simplest)
-2. Clef `realize` + a built-in Clef synthesizer compiled to WASM (more self-contained, but complex)
-3. Host provides a synthesis function back to Clef via registered host functions (most flexible)
+1. Kanon `realize` produces events → JS schedules them via Web Audio (simplest)
+2. Kanon `realize` + a built-in Kanon synthesizer compiled to WASM (more self-contained, but complex)
+3. Host provides a synthesis function back to Kanon via registered host functions (most flexible)
 
 Probably start with option 1.
 
@@ -161,25 +163,25 @@ Probably start with option 1.
 
 ## Hosting: DAW Product
 
-**Vision:** A special-purpose DAW with Clef scripting built in. Proprietary, paid product. Clef language itself is open source; the DAW is commercial.
+**Vision:** A special-purpose DAW with Kanon scripting built in. Proprietary, paid product. Kanon itself is open source; the DAW is commercial.
 
 **Key features to support:**
 - Live coding: re-evaluate on keystroke, hear changes immediately
 - Visual feedback: Music tree rendered as a node graph, piano roll synced to playback
-- Preset library: curated Clef scripts for common patterns/tunings
-- Plugin API: Clef scripts as audio/MIDI effect plugins within the DAW
+- Preset library: curated Kanon scripts for common patterns/tunings
+- Plugin API: Kanon scripts as audio/MIDI effect plugins within the DAW
 - Export: MIDI, audio, notation (LilyPond/MusicXML)
 
-**Business model consideration:** Clef is MIT/Apache licensed. The DAW is proprietary. Third-party hosts can also be commercial. This is the Redis/MongoDB/Elastic model — open core language, commercial tools built on top.
+**Business model consideration:** Kanon is MIT/Apache licensed. The DAW is proprietary. Third-party hosts can also be commercial. This is the Redis/MongoDB/Elastic model — open core language, commercial tools built on top.
 
 ---
 
 ## Misc Notes
 
-- **Erik Meijer** (not Eric Myers) — the Haskell/LINQ/Rx guy at Microsoft who's enthusiastic about Kotlin. His work on LINQ (monadic comprehension syntax in C#) is directly relevant to Clef's generator/pipeline design.
+- **Erik Meijer** (not Eric Myers) — the Haskell/LINQ/Rx guy at Microsoft who's enthusiastic about Kotlin. His work on LINQ (monadic comprehension syntax in C#) is directly relevant to Kanon's generator/pipeline design.
 
 - **Pratt parsing** — already planned, well-suited for the expression grammar. Bob Nystrom's blog post and the Crafting Interpreters chapter are the canonical tutorials.
 
-- **Hudak's algebraic music model** — doesn't require Haskell features. Just needs: enum types (sum types), pattern matching, and recursive data structures. All of which Clef has. The equational laws are properties of the implementation, not the type system.
+- **Hudak's algebraic music model** — doesn't require Haskell features. Just needs: enum types (sum types), pattern matching, and recursive data structures. All of which Kanon has. The equational laws are properties of the implementation, not the type system.
 
 - **SuperCollider** — NOT true UFCS. SC is Smalltalk-derived message-passing. You must add methods to classes to chain them with dot syntax. True UFCS (D, Nim, Koka, Lean) lets any free function be called as a method.
