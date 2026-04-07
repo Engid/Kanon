@@ -7,6 +7,7 @@
 > **Changelog:**
 > - 2026-04-05 — Initial draft
 > - 2026-04-06 — Added metadata headers
+> - 2026-04-06 — Renamed the language references to Kanon in the index and glossary
 
 ## Document Map
 

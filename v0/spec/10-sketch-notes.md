@@ -5,6 +5,7 @@
 > **Changelog:**
 > - 2026-04-05 — Initial draft
 > - 2026-04-06 — Added metadata headers
+> - 2026-04-06 — Replaced the naming discussion with the Kanon decision and updated examples
 
 This document collects design discussions, unresolved questions, and ideas for future consideration. Items here are NOT part of the specification — they're conversation notes to revisit later.
 

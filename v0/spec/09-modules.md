@@ -5,6 +5,7 @@
 > **Changelog:**
 > - 2026-04-05 — Initial draft
 > - 2026-04-06 — Added metadata headers
+> - 2026-04-06 — Updated module examples, `.kan` files, and Kanon tooling names
 
 ## 9.1 Overview
 
