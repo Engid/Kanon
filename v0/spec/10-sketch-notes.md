@@ -20,7 +20,15 @@ Kanon is the Greek name of the Pythagorean monochord, the single-string instrume
 - It ties the project directly to the historical discovery that music and mathematics are linked by ratio.
 - It matches the language's emphasis on exact numeric relationships, especially rational intervals.
 - It also echoes the musical idea of a canon, which fits layering and offset composition.
-- Kanon is also used as a Japanese given name with musical associations, which gives the name an additional musical resonance.
+- Kanon is also used as a Japanese given name with musical associations depending on the kanji variations used. For example:
+  - 奏音 : 
+    - 奏 means "to play, to report, to achieve."
+    - 音 means "sound, tidings, verse."
+
+  - 歌音 :
+    - 歌 means "to sing, song, poetry."
+    - 音 means "sound, tidings, verse."
+    
 
 **Decision:** The language name is Kanon. The file extension is `.kan`. Tooling and project artifacts use the `kanon` prefix.
 
